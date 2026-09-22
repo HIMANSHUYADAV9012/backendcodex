@@ -1,8 +1,12 @@
 /* =========================================================
    SkillBridge AI — Frontend Logic
    ========================================================= */
-const API = "https://backendcodex.vercel.app/";
+const API = "https://backendcodex.vercel.app";
 let CURRENT = { user: null, profile: null, role: null, selectedSkills: [] };
+
+/* ------------ CONSTANTS (top pe — TDZ fix) ------------- */
+const SKILL_OPTIONS = ["Python","JavaScript","React","SQL","Data Science","Java",
+  "Machine Learning","Docker","Node.js","System Design","HTML/CSS"];
 
 /* ------------ helpers ------------- */
 const $ = (id) => document.getElementById(id);
@@ -38,7 +42,6 @@ function scoreBar(score) {
   </div>`;
 }
 function ring(score, size=64) {
-  const c = scoreColor(score);
   const R = size/2 - 6;
   const C = 2*Math.PI*R;
   const off = C * (1 - Math.max(0,Math.min(100,score))/100);
@@ -53,23 +56,57 @@ function ring(score, size=64) {
 
 /* ------------ TAB STYLING ------------- */
 function styleTabs() {
-  document.querySelectorAll('.tabBtn').forEach(b=>{
-    b.className = 'tabBtn px-4 py-2 rounded-full text-sm font-medium border border-ink-600 text-slate-400 hover:text-white hover:border-brand-500 transition';
-    b.onclick = () => switchTab(b.dataset.tab);
+  // Base classes ensure karo (safety net) — click handled by inline onclick in HTML
+  document.querySelectorAll('.tabBtn').forEach(b => {
+    b.classList.add('px-4', 'py-2', 'rounded-full', 'text-sm', 'font-medium', 'transition');
   });
 }
+
+/* ------------ SWITCH TAB (exposed globally for inline onclick) ------------- */
 function switchTab(tab) {
-  document.querySelectorAll('.panel').forEach(p=>p.classList.add('hidden'));
-  document.querySelectorAll('.tabBtn').forEach(b=>{
-    const active = b.dataset.tab===tab;
-    b.className = `tabBtn px-4 py-2 rounded-full text-sm font-medium transition ${active
-      ? 'grad-bg text-white border border-transparent shadow shadow-brand-500/30'
-      : 'border border-ink-600 text-slate-400 hover:text-white hover:border-brand-500'}`;
+  console.log('switchTab →', tab);
+
+  // 1) Hide all panels
+  document.querySelectorAll('.panel').forEach(p => {
+    p.classList.add('hidden');
+    p.classList.remove('active');
   });
-  const panel = $(tab); if (!panel) return;
+
+  // 2) Update active state on tab buttons
+  document.querySelectorAll('.tabBtn').forEach(b => {
+    const isActive = b.dataset.tab === tab;
+
+    // Base classes (always present)
+    b.classList.add('px-4', 'py-2', 'rounded-full', 'text-sm', 'font-medium', 'transition');
+
+    // Active classes
+    b.classList.toggle('grad-bg', isActive);
+    b.classList.toggle('text-white', isActive);
+    b.classList.toggle('border-transparent', isActive);
+    b.classList.toggle('shadow', isActive);
+    b.classList.toggle('shadow-brand-500/30', isActive);
+
+    // Inactive classes
+    b.classList.toggle('border', !isActive);
+    b.classList.toggle('border-ink-600', !isActive);
+    b.classList.toggle('text-slate-400', !isActive);
+  });
+
+  // 3) Show target panel
+  const panel = $(tab);
+  if (!panel) {
+    console.warn('Panel not found for tab:', tab);
+    return;
+  }
   panel.classList.remove('hidden');
+  panel.classList.add('active');
+
+  // 4) Render content
   renderPanel(tab);
 }
+
+// 🔑 Make it global so inline onclick in HTML works
+window.switchTab = switchTab;
 
 /* ------------ AUTH ------------- */
 let selectedRole = 'student';
@@ -81,7 +118,6 @@ document.querySelectorAll('.roleBtn').forEach(b=>{
         ? 'grad-bg text-white shadow'
         : 'text-slate-400 hover:text-white');
     });
-    // auto init since selectedRole set (for first render)
   };
 });
 // set default
@@ -90,19 +126,52 @@ document.querySelector('.roleBtn[data-role="student"]').click();
 $('sendOtpBtn').onclick = async () => {
   const phone = $('phone').value.trim();
   if (phone.length !== 10) return toast('Enter 10-digit mobile', 'error');
+
+  const btn = $('sendOtpBtn');
+  if (btn.disabled) return;                    // guard
+  btn.disabled = true;
+  const original = btn.innerHTML;
+  btn.innerHTML = `<span class="inline-flex items-center gap-2 justify-center">
+      <span class="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
+      Sending OTP…
+    </span>`;
+  btn.classList.add('opacity-70','cursor-not-allowed');
+
   try {
     const r = await api('/api/auth/send-otp','POST',{phone, role: selectedRole});
     $('otpWrap').classList.remove('hidden');
     $('verifyOtpBtn').classList.remove('hidden');
     $('authMsg').innerHTML = `<span class="text-emerald-400">OTP sent (demo: 123456)</span>`;
     toast('OTP sent to +91 '+phone, 'success');
-  } catch(e){ toast(e.message,'error'); }
+    // Auto-focus OTP input
+    setTimeout(()=>$('otp').focus(), 100);
+    // Change button to "Resend" style
+    btn.textContent = 'Resend OTP';
+  } catch(e){
+    toast(e.message,'error');
+    btn.innerHTML = original;
+  } finally {
+    btn.disabled = false;
+    btn.classList.remove('opacity-70','cursor-not-allowed');
+    if (btn.innerHTML.includes('Sending')) btn.innerHTML = original;
+  }
 };
 
 $('verifyOtpBtn').onclick = async () => {
   const phone = $('phone').value.trim();
   const otp = $('otp').value.trim();
   if (!otp) return toast('Enter OTP','error');
+
+  const btn = $('verifyOtpBtn');
+  if (btn.disabled) return;                    // guard
+  btn.disabled = true;
+  const original = btn.innerHTML;
+  btn.innerHTML = `<span class="inline-flex items-center gap-2 justify-center">
+      <span class="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
+      Verifying…
+    </span>`;
+  btn.classList.add('opacity-70','cursor-not-allowed');
+
   try {
     const r = await api('/api/auth/verify-otp','POST',{phone, otp, role: selectedRole});
     CURRENT.user = r.user;
@@ -112,10 +181,15 @@ $('verifyOtpBtn').onclick = async () => {
     if (r.onboarded && r.profile) {
       enterApp();
     } else {
-      // show onboarding
       await onboard();
     }
-  } catch(e){ toast(e.message,'error'); }
+  } catch(e){
+    toast(e.message,'error');
+    btn.innerHTML = original;
+  } finally {
+    btn.disabled = false;
+    btn.classList.remove('opacity-70','cursor-not-allowed');
+  }
 };
 
 function logout() {
@@ -128,6 +202,7 @@ function logout() {
   $('otpWrap').classList.add('hidden'); $('verifyOtpBtn').classList.add('hidden');
   $('authMsg').textContent = '';
 }
+window.logout = logout;
 
 /* ------------ ONBOARDING ------------- */
 async function onboard() {
@@ -262,18 +337,29 @@ function enterApp() {
 }
 
 /* ------------ SEED BUTTON ------------- */
-$('seedBtn').onclick = async () => {
-  try { $('seedBtn').textContent = 'Seeding…';
-    const r = await api('/api/seed','POST');
-    toast('Seed complete!', 'success');
-    $('seedBtn').textContent = 'Seed Demo Data';
-  } catch(e){ toast(e.message,'error'); $('seedBtn').textContent='Seed Demo Data'; }
-};
+const seedBtn = $('seedBtn');
+if (seedBtn) {
+  seedBtn.onclick = async () => {
+    try { seedBtn.textContent = 'Seeding…';
+      await api('/api/seed','POST');
+      toast('Seed complete!', 'success');
+      seedBtn.textContent = 'Seed Demo Data';
+    } catch(e){ toast(e.message,'error'); seedBtn.textContent='Seed Demo Data'; }
+  };
+}
 
 /* ------------ PANEL RENDERERS ------------- */
 async function renderPanel(tab) {
-  const panel = $(tab); if (!panel) return;
-  const r = CURRENT.role;
+  const panel = $(tab);
+  if (!panel) return;
+
+  if (!CURRENT.profile) {
+    panel.innerHTML = `<div class="p-6 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300">
+      Please complete your profile first.
+    </div>`;
+    return;
+  }
+
   try {
     if (tab==='s-dashboard') await renderStudentDashboard(panel);
     else if (tab==='s-test') await renderStudentTest(panel);
@@ -283,7 +369,9 @@ async function renderPanel(tab) {
     else if (tab==='i-dashboard') await renderIndustryDashboard(panel);
     else if (tab==='i-post') await renderIndustryPost(panel);
     else if (tab==='i-search') await renderIndustrySearch(panel);
-  } catch(e){ panel.innerHTML = `<div class="p-6 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-300">${e.message}</div>`; }
+  } catch(e){
+    panel.innerHTML = `<div class="p-6 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-300">${e.message}</div>`;
+  }
 }
 
 /* =============== STUDENT: DASHBOARD =============== */
@@ -340,11 +428,7 @@ async function renderStudentDashboard(panel) {
 }
 
 /* =============== STUDENT: SKILL TEST =============== */
-const SKILL_OPTIONS = ["Python","JavaScript","React","SQL","Data Science","Java",
-  "Machine Learning","Docker","Node.js","System Design","HTML/CSS"];
-
 async function renderStudentTest(panel) {
-  // Step 1: choose skills
   panel.innerHTML = `
     <div class="p-6 rounded-3xl bg-ink-700/60 border border-ink-600">
       <h2 class="text-2xl font-bold">🧪 Skill Test</h2>
@@ -421,7 +505,6 @@ async function loadTestQuestions(panel) {
     area.innerHTML = loader('AI is scoring your answers…');
     try {
       const r = await api('/api/test/submit','POST', payload);
-      // refresh profile
       CURRENT.profile = await api(`/api/students/${CURRENT.profile.id}`);
       toast('Test scored!', 'success');
       renderTestResult(area, r);
@@ -524,10 +607,9 @@ async function renderStudentGap(panel) {
 
 /* =============== STUDENT: LEARN =============== */
 async function renderStudentLearn(panel) {
-  // prefill with gaps
   const d = await api(`/api/dashboard/student/${CURRENT.profile.id}`);
   const latestGap = (d.gaps||[])[0];
-  const gapSkills = latestGap ? latestGap.missing_skills.map(g=>g.skill).filter(Boolean) : [];
+  const gapSkills = latestGap ? (latestGap.missing_skills||[]).map(g=>g.skill).filter(Boolean) : [];
 
   panel.innerHTML = `
     <div class="p-6 rounded-3xl bg-ink-700/60 border border-ink-600">
@@ -624,7 +706,7 @@ async function renderStudentMatch(panel) {
                 `).join('')}
               </div>
             </div>
-            ${m.missing_skills.length? `
+            ${(m.missing_skills||[]).length? `
             <div>
               <div class="text-[10px] font-bold text-slate-500 uppercase">Missing</div>
               <div class="flex flex-wrap gap-1.5 mt-1.5">
@@ -687,9 +769,10 @@ async function renderIndustryDashboard(panel) {
     </div>
   `;
 }
+
 window.quickFind = (jobId) => {
   switchTab('i-search');
-  setTimeout(()=>{ const sel=$('jobSelect'); if(sel){ sel.value=jobId; $('runFind').click(); } }, 300);
+  setTimeout(()=>{ const sel=$('jobSelect'); if(sel){ sel.value=jobId; const rf=$('runFind'); if(rf) rf.click(); } }, 400);
 };
 
 /* =============== INDUSTRY: POST JOB =============== */
@@ -742,7 +825,7 @@ async function renderIndustryPost(panel) {
     const row = el(`<div class="flex gap-2 items-center">
       <input placeholder="Skill" value="${skill}" class="flex-1 px-3 py-2.5 rounded-xl bg-ink-800 border border-ink-600 focus:border-brand-500 outline-none text-sm"/>
       <input type="number" min="1" max="5" value="${lvl}" class="w-20 px-3 py-2.5 rounded-xl bg-ink-800 border border-ink-600 focus:border-brand-500 outline-none text-sm"/>
-      <button class="px-3 py-2.5 rounded-xl border border-ink-600 hover:border-red-400 hover:text-red-400 transition text-sm">✕</button>
+      <button type="button" class="px-3 py-2.5 rounded-xl border border-ink-600 hover:border-red-400 hover:text-red-400 transition text-sm">✕</button>
     </div>`);
     row.querySelector('button').onclick = () => row.remove();
     wrap.appendChild(row);
@@ -755,8 +838,9 @@ async function renderIndustryPost(panel) {
     if (!title) return toast('Job title required','error');
     const req = {};
     wrap.querySelectorAll('.flex').forEach(r=>{
-      const [s, l] = r.querySelectorAll('input');
-      const sv = s.value.trim(); const lv = parseInt(l.value);
+      const inputs = r.querySelectorAll('input');
+      const sv = inputs[0].value.trim();
+      const lv = parseInt(inputs[1].value);
       if (sv && lv>=1 && lv<=5) req[sv] = lv;
     });
     if (!Object.keys(req).length) return toast('Add at least one required skill','error');
@@ -835,7 +919,7 @@ async function renderIndustrySearch(panel) {
                   `).join('')}
                 </div>
               </div>
-              ${c.missing_skills.length? `
+              ${(c.missing_skills||[]).length? `
               <div>
                 <div class="text-[10px] font-bold text-slate-500 uppercase">Missing</div>
                 <div class="flex flex-wrap gap-1.5 mt-1.5">
@@ -851,9 +935,12 @@ async function renderIndustrySearch(panel) {
 }
 
 /* ------------ BOOT ------------- */
-styleTabs();
-$('seedBtn').classList.remove('hidden');
-// Auto-seed on first load silently
+document.addEventListener('DOMContentLoaded', () => {
+  styleTabs();
+  const sb = $('seedBtn');
+  if (sb) sb.classList.remove('hidden');
+});
+
 window.addEventListener('load', async () => {
   try { await api('/api/seed','POST'); } catch(_) {}
 });
