@@ -26,6 +26,10 @@
     }
   </script>
   <style>
+    html, body {
+      overflow-x: hidden;
+    }
+
     body {
       font-family: 'Inter', sans-serif;
     }
@@ -64,6 +68,7 @@
 
     .scroll-thin::-webkit-scrollbar {
       width: 6px;
+      height: 6px;
     }
 
     .scroll-thin::-webkit-scrollbar-thumb {
@@ -84,73 +89,38 @@
       }
     }
 
-    /* --- Responsive enhancements --- */
+    /* Tab buttons base style (JS ke saath consistent) */
     .tabBtn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.65rem 1.2rem;
-      border-radius: 9999px;
-      background: rgba(23, 29, 54, 0.7);
-      border: 1px solid #232a48;
-      font-size: 0.875rem;
+      padding: 0.55rem 1rem;
+      border-radius: 0.75rem;
+      font-size: 0.85rem;
       font-weight: 600;
+      border: 1px solid #232a48;
+      background: rgba(23, 29, 54, .6);
       color: #cbd5e1;
-      transition: all 0.2s ease;
+      transition: all .2s ease;
       white-space: nowrap;
-      cursor: pointer;
     }
 
     .tabBtn:hover {
       border-color: #6c8cff;
-      color: white;
-      background: rgba(108, 140, 255, 0.15);
+      color: #fff;
     }
 
     .tabBtn.active {
       background: linear-gradient(135deg, #6c8cff, #a86bff);
+      color: #fff;
       border-color: transparent;
-      color: white;
-      box-shadow: 0 4px 20px rgba(108, 140, 255, 0.3);
+      box-shadow: 0 8px 20px -8px rgba(108, 140, 255, .6);
     }
 
-    /* Hide scrollbar for tab nav on mobile but keep functionality */
-    .tabs-scroll {
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
+    .roleBtn.active {
+      background: linear-gradient(135deg, #6c8cff, #a86bff);
+      color: #fff;
     }
 
-    .tabs-scroll::-webkit-scrollbar {
-      display: none;
-    }
-
-    /* Panel placeholder styling */
-    .panel {
-      min-height: 240px;
-    }
-
-    /* Responsive grid for stat cards */
-    @media (max-width: 480px) {
-      .stat-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    /* Auth screen layout refinements */
-    @media (max-width: 768px) {
-      #authScreen {
-        grid-template-columns: 1fr;
-        padding-top: 1.5rem;
-        padding-bottom: 2rem;
-      }
-    }
-
-    /* Footer alignment */
-    @media (max-width: 640px) {
-      footer .flex-wrap {
-        flex-direction: column;
-        gap: 0.5rem;
-      }
+    .roleBtn {
+      color: #cbd5e1;
     }
   </style>
 </head>
@@ -159,57 +129,61 @@
 
   <!-- ================= NAVBAR ================= -->
   <header class="sticky top-0 z-40 glass border-b border-ink-600">
-    <div class="max-w-7xl mx-auto flex items-center justify-between px-5 py-3">
-      <div class="flex items-center gap-3">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-3 px-4 sm:px-6 lg:px-8 py-3">
+      <div class="flex items-center gap-3 min-w-0">
         <div
-          class="w-10 h-10 rounded-xl grad-bg grid place-items-center font-black text-white shadow-lg shadow-brand-500/30">
+          class="w-10 h-10 shrink-0 rounded-xl grad-bg grid place-items-center font-black text-white shadow-lg shadow-brand-500/30">
           CX</div>
-        <div>
-          <h1 class="text-lg font-bold leading-none">TEAM CODE X <span class="grad-text">AI</span></h1>
-          <p class="text-[11px] text-slate-400 mt-0.5">Test · Improve · Get Hired</p>
+        <div class="min-w-0">
+          <h1 class="text-base sm:text-lg font-bold leading-none truncate">TEAM CODE X <span class="grad-text">AI</span></h1>
+          <p class="text-[10px] sm:text-[11px] text-slate-400 mt-0.5 truncate">Test · Improve · Get Hired</p>
         </div>
       </div>
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-3 shrink-0">
+
         <div id="navUser" class="hidden items-center gap-2 text-sm text-slate-300">
-          <div id="navAvatar" class="w-8 h-8 rounded-full grad-bg grid place-items-center font-bold text-white text-xs">
-            U</div>
+          <div id="navAvatar"
+            class="w-8 h-8 rounded-full grad-bg grid place-items-center font-bold text-white text-xs">U</div>
           <span id="navName" class="font-medium hidden sm:inline">User</span>
           <button onclick="logout()"
-            class="ml-2 text-xs px-3 py-1.5 rounded-lg border border-ink-600 hover:border-red-400 hover:text-red-400 transition">Logout</button>
+            class="ml-1 sm:ml-2 text-xs px-3 py-1.5 rounded-lg border border-ink-600 hover:border-red-400 hover:text-red-400 transition">Logout</button>
         </div>
       </div>
     </div>
   </header>
 
+
   <!-- ================= AUTH SCREEN ================= -->
-  <main id="authScreen" class="max-w-6xl mx-auto px-5 py-10 grid md:grid-cols-2 gap-8 items-center">
+  <main id="authScreen"
+    class="max-w-6xl mx-auto px-5 sm:px-8 lg:px-10 py-8 sm:py-10 grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
     <div class="fade-in">
       <span
         class="inline-block text-[11px] font-semibold tracking-wider text-brand-500 bg-brand-500/10 px-3 py-1 rounded-full">CODE
         X · AI CAREER PLATFORM</span>
-      <h2 class="mt-4 text-4xl md:text-5xl font-extrabold leading-tight">Know your <span
+      <h2 class="mt-4 text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight">Know your <span
           class="grad-text">skills</span>, improve them, and find your <span class="grad-text">right job</span>.</h2>
-      <p class="mt-4 text-slate-400 leading-relaxed">Take a simple skill test, see what you know and what you need to
+      <p class="mt-4 text-sm sm:text-base text-slate-400 leading-relaxed">Take a simple skill test, see what you know
+        and what you need to
         improve, get a learning plan, and find internships & jobs that match your skills. Companies can also find
         skilled students.</p>
-      <div class="mt-8 grid grid-cols-3 gap-4 text-center stat-grid">
-        <div class="p-4 rounded-2xl bg-ink-700/60 border border-ink-600">
-          <div class="text-2xl font-extrabold grad-text">20+</div>
-          <div class="text-xs text-slate-400 mt-1">Students</div>
+      <div class="mt-8 grid grid-cols-3 gap-3 sm:gap-4 text-center">
+        <div class="p-3 sm:p-4 rounded-2xl bg-ink-700/60 border border-ink-600">
+          <div class="text-xl sm:text-2xl font-extrabold grad-text">20+</div>
+          <div class="text-[10px] sm:text-xs text-slate-400 mt-1">Students</div>
         </div>
-        <div class="p-4 rounded-2xl bg-ink-700/60 border border-ink-600">
-          <div class="text-2xl font-extrabold grad-text">20+</div>
-          <div class="text-xs text-slate-400 mt-1">Companies</div>
+        <div class="p-3 sm:p-4 rounded-2xl bg-ink-700/60 border border-ink-600">
+          <div class="text-xl sm:text-2xl font-extrabold grad-text">20+</div>
+          <div class="text-[10px] sm:text-xs text-slate-400 mt-1">Companies</div>
         </div>
-        <div class="p-4 rounded-2xl bg-ink-700/60 border border-ink-600">
-          <div class="text-2xl font-extrabold grad-text">11</div>
-          <div class="text-xs text-slate-400 mt-1">Skills</div>
+        <div class="p-3 sm:p-4 rounded-2xl bg-ink-700/60 border border-ink-600">
+          <div class="text-xl sm:text-2xl font-extrabold grad-text">11</div>
+          <div class="text-[10px] sm:text-xs text-slate-400 mt-1">Skills</div>
         </div>
       </div>
     </div>
 
-    <div class="fade-in rounded-3xl bg-ink-700/70 border border-ink-600 p-7 shadow-2xl">
-      <h3 class="text-xl font-bold">Sign in with Mobile</h3>
+    <div class="fade-in rounded-3xl bg-ink-700/70 border border-ink-600 p-5 sm:p-7 shadow-2xl">
+      <h3 class="text-lg sm:text-xl font-bold">Sign in with Mobile</h3>
       <p class="text-sm text-slate-400 mt-1">Demo OTP: <span class="text-brand-500 font-semibold">123456</span></p>
 
       <!-- Role toggle -->
@@ -226,7 +200,7 @@
           <span
             class="px-3 py-3 rounded-l-xl bg-ink-800 border border-r-0 border-ink-600 text-slate-400 text-sm">+91</span>
           <input id="phone" type="tel" maxlength="10" placeholder="9876543210"
-            class="flex-1 px-3 py-3 rounded-r-xl bg-ink-800 border border-ink-600 focus:border-brand-500 outline-none text-sm" />
+            class="flex-1 min-w-0 px-3 py-3 rounded-r-xl bg-ink-800 border border-ink-600 focus:border-brand-500 outline-none text-sm" />
         </div>
       </div>
 
@@ -247,10 +221,11 @@
   </main>
 
   <!-- ================= APP SHELL ================= -->
-  <div id="appShell" class="hidden max-w-7xl mx-auto px-5 py-6">
+  <div id="appShell" class="hidden max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 py-6">
 
     <!-- Student Tabs -->
-    <nav id="studentTabs" class="hidden flex-wrap gap-2 mb-6 tabs-scroll overflow-x-auto pb-1">
+    <nav id="studentTabs"
+      class="hidden flex-wrap gap-2 mb-6 overflow-x-auto scroll-thin pb-1">
       <button type="button" data-tab="s-dashboard" class="tabBtn" onclick="switchTab('s-dashboard')">📊
         Dashboard</button>
       <button type="button" data-tab="s-test" class="tabBtn" onclick="switchTab('s-test')">🧪 Skill Test</button>
@@ -260,7 +235,8 @@
     </nav>
 
     <!-- Industry Tabs -->
-    <nav id="industryTabs" class="hidden flex-wrap gap-2 mb-6 tabs-scroll overflow-x-auto pb-1">
+    <nav id="industryTabs"
+      class="hidden flex-wrap gap-2 mb-6 overflow-x-auto scroll-thin pb-1">
       <button type="button" data-tab="i-dashboard" class="tabBtn" onclick="switchTab('i-dashboard')">📊
         Dashboard</button>
       <button type="button" data-tab="i-post" class="tabBtn" onclick="switchTab('i-post')">➕ Post Job</button>
@@ -280,8 +256,8 @@
     <section id="i-search" class="panel hidden fade-in"></section>
   </div>
 
-  <footer class="mt-12 border-t border-ink-600 py-7 px-5 text-center text-xs text-slate-500">
-    <div class="flex flex-wrap justify-center items-center gap-x-2 gap-y-1">
+  <footer class="mt-12 border-t border-ink-600 py-7 px-5 sm:px-8 lg:px-10 text-center text-xs text-slate-500">
+    <div class="max-w-4xl mx-auto flex flex-wrap justify-center items-center gap-x-2 gap-y-1 leading-relaxed">
       <span>Code X</span>
       <span>·</span>
       <span>Hackathon Prototype</span>
@@ -302,7 +278,7 @@
     </div>
 
     <div
-      class="mt-4 inline-flex flex-wrap justify-center items-center gap-1.5 rounded-full border border-brand-500/30 bg-brand-500/10 px-4 py-2 text-slate-300">
+      class="mt-4 inline-flex flex-wrap justify-center items-center gap-1.5 rounded-full border border-brand-500/30 bg-brand-500/10 px-4 py-2 text-slate-300 max-w-full">
       <span>Designed with ❤️ by</span>
       <span class="font-bold text-white">Himanshu Yadav</span>
       <span class="text-brand-400 font-semibold">(Team Code X)</span>
