@@ -1,7 +1,7 @@
 /* =========================================================
    SkillBridge AI — Frontend Logic
    ========================================================= */
-const API = "http://127.0.0.1:8000";
+const API = "https://backendcodex.vercel.app/";
 let CURRENT = { user: null, profile: null, role: null, selectedSkills: [] };
 
 /* ------------ helpers ------------- */
