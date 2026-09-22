@@ -184,18 +184,20 @@
 
     <!-- Student Tabs -->
     <nav id="studentTabs" class="hidden flex-wrap gap-2 mb-6">
-      <button data-tab="s-dashboard" class="tabBtn">📊 Dashboard</button>
-      <button data-tab="s-test" class="tabBtn">🧪 Skill Test</button>
-      <button data-tab="s-gap" class="tabBtn">🎯 Gap Analysis</button>
-      <button data-tab="s-learn" class="tabBtn">📚 Learn</button>
-      <button data-tab="s-match" class="tabBtn">🚀 Internships</button>
+      <button type="button" data-tab="s-dashboard" class="tabBtn" onclick="switchTab('s-dashboard')">📊
+        Dashboard</button>
+      <button type="button" data-tab="s-test" class="tabBtn" onclick="switchTab('s-test')">🧪 Skill Test</button>
+      <button type="button" data-tab="s-gap" class="tabBtn" onclick="switchTab('s-gap')">🎯 Gap Analysis</button>
+      <button type="button" data-tab="s-learn" class="tabBtn" onclick="switchTab('s-learn')">📚 Learn</button>
+      <button type="button" data-tab="s-match" class="tabBtn" onclick="switchTab('s-match')">🚀 Internships</button>
     </nav>
 
     <!-- Industry Tabs -->
     <nav id="industryTabs" class="hidden flex-wrap gap-2 mb-6">
-      <button data-tab="i-dashboard" class="tabBtn">📊 Dashboard</button>
-      <button data-tab="i-post" class="tabBtn">➕ Post Job</button>
-      <button data-tab="i-search" class="tabBtn">🔎 Find Talent</button>
+      <button type="button" data-tab="i-dashboard" class="tabBtn" onclick="switchTab('i-dashboard')">📊
+        Dashboard</button>
+      <button type="button" data-tab="i-post" class="tabBtn" onclick="switchTab('i-post')">➕ Post Job</button>
+      <button type="button" data-tab="i-search" class="tabBtn" onclick="switchTab('i-search')">🔎 Find Talent</button>
     </nav>
 
     <!-- ============ STUDENT PANELS ============ -->
@@ -240,7 +242,7 @@
     </div>
   </footer>
 
-  <script src="/static/app.js"></script>
+  <script src="app.js"></script>
 </body>
 
 </html>
