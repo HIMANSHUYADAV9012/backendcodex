@@ -83,6 +83,75 @@
         transform: rotate(360deg);
       }
     }
+
+    /* --- Responsive enhancements --- */
+    .tabBtn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.65rem 1.2rem;
+      border-radius: 9999px;
+      background: rgba(23, 29, 54, 0.7);
+      border: 1px solid #232a48;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #cbd5e1;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .tabBtn:hover {
+      border-color: #6c8cff;
+      color: white;
+      background: rgba(108, 140, 255, 0.15);
+    }
+
+    .tabBtn.active {
+      background: linear-gradient(135deg, #6c8cff, #a86bff);
+      border-color: transparent;
+      color: white;
+      box-shadow: 0 4px 20px rgba(108, 140, 255, 0.3);
+    }
+
+    /* Hide scrollbar for tab nav on mobile but keep functionality */
+    .tabs-scroll {
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .tabs-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Panel placeholder styling */
+    .panel {
+      min-height: 240px;
+    }
+
+    /* Responsive grid for stat cards */
+    @media (max-width: 480px) {
+      .stat-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Auth screen layout refinements */
+    @media (max-width: 768px) {
+      #authScreen {
+        grid-template-columns: 1fr;
+        padding-top: 1.5rem;
+        padding-bottom: 2rem;
+      }
+    }
+
+    /* Footer alignment */
+    @media (max-width: 640px) {
+      footer .flex-wrap {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+    }
   </style>
 </head>
 
@@ -101,18 +170,16 @@
         </div>
       </div>
       <div class="flex items-center gap-3">
-
         <div id="navUser" class="hidden items-center gap-2 text-sm text-slate-300">
           <div id="navAvatar" class="w-8 h-8 rounded-full grad-bg grid place-items-center font-bold text-white text-xs">
             U</div>
-          <span id="navName" class="font-medium">User</span>
+          <span id="navName" class="font-medium hidden sm:inline">User</span>
           <button onclick="logout()"
             class="ml-2 text-xs px-3 py-1.5 rounded-lg border border-ink-600 hover:border-red-400 hover:text-red-400 transition">Logout</button>
         </div>
       </div>
     </div>
   </header>
-
 
   <!-- ================= AUTH SCREEN ================= -->
   <main id="authScreen" class="max-w-6xl mx-auto px-5 py-10 grid md:grid-cols-2 gap-8 items-center">
@@ -125,7 +192,7 @@
       <p class="mt-4 text-slate-400 leading-relaxed">Take a simple skill test, see what you know and what you need to
         improve, get a learning plan, and find internships & jobs that match your skills. Companies can also find
         skilled students.</p>
-      <div class="mt-8 grid grid-cols-3 gap-4 text-center">
+      <div class="mt-8 grid grid-cols-3 gap-4 text-center stat-grid">
         <div class="p-4 rounded-2xl bg-ink-700/60 border border-ink-600">
           <div class="text-2xl font-extrabold grad-text">20+</div>
           <div class="text-xs text-slate-400 mt-1">Students</div>
@@ -183,7 +250,7 @@
   <div id="appShell" class="hidden max-w-7xl mx-auto px-5 py-6">
 
     <!-- Student Tabs -->
-    <nav id="studentTabs" class="hidden flex-wrap gap-2 mb-6">
+    <nav id="studentTabs" class="hidden flex-wrap gap-2 mb-6 tabs-scroll overflow-x-auto pb-1">
       <button type="button" data-tab="s-dashboard" class="tabBtn" onclick="switchTab('s-dashboard')">📊
         Dashboard</button>
       <button type="button" data-tab="s-test" class="tabBtn" onclick="switchTab('s-test')">🧪 Skill Test</button>
@@ -193,7 +260,7 @@
     </nav>
 
     <!-- Industry Tabs -->
-    <nav id="industryTabs" class="hidden flex-wrap gap-2 mb-6">
+    <nav id="industryTabs" class="hidden flex-wrap gap-2 mb-6 tabs-scroll overflow-x-auto pb-1">
       <button type="button" data-tab="i-dashboard" class="tabBtn" onclick="switchTab('i-dashboard')">📊
         Dashboard</button>
       <button type="button" data-tab="i-post" class="tabBtn" onclick="switchTab('i-post')">➕ Post Job</button>
